@@ -8,15 +8,18 @@ st.set_page_config(page_title="AGRO NORMA - CAAE", page_icon="🌾", layout="cen
 st.title("🌾 AGRO NORMA")
 st.markdown("### Asistente técnico especializado en normativas agrícolas (CAAE)")
 
-# Configuración de la API Key de forma segura
+# Configuración de la API Key
 api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
-    st.warning("⚠️ Por favor configura tu API Key de Google Gemini en los secretos de Streamlit o variables de entorno.")
-    api_key = st.text_input("Ingresa tu Google GenAI API Key temporalmente:", type="password")
+    st.sidebar.warning("⚠️ Configura tu API Key.")
+    api_key = st.sidebar.text_input("Ingresa tu Google GenAI API Key:", type="password")
 
 if api_key:
-    client = genai.Client(api_key=api_key)
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        st.error(f"Error al inicializar el cliente: {e}")
 
     # Subida de PDFs de la normativa
     st.sidebar.header("📁 Documentación Oficial")
@@ -27,7 +30,7 @@ if api_key:
     )
 
     if uploaded_files:
-        st.sidebar.success(f"✅ {len(uploaded_files)} documentos cargados correctamente.")
+        st.sidebar.success(f"✅ {len(uploaded_files)} documentos cargados.")
 
     # Historial de chat
     if "messages" not in st.session_state:
@@ -49,7 +52,6 @@ if api_key:
             with st.chat_message("assistant"):
                 with st.spinner("Analizando normativa oficial..."):
                     try:
-                        # Procesar archivos subidos para enviarlos al modelo
                         contents = []
                         for file in uploaded_files:
                             contents.append(
@@ -88,4 +90,4 @@ if api_key:
                     except Exception as e:
                         st.error(f"Ocurrió un error al procesar la solicitud: {e}")
 else:
-    st.info("💡 Ingresa tu clave API para habilitar la aplicación.")
+    st.info("💡 Por favor ingresa tu clave API en la barra lateral izquierda para habilitar la aplicación.")
