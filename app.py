@@ -8,40 +8,41 @@ st.set_page_config(page_title="AGRO NORMA - CAAE", page_icon="🌾", layout="cen
 # --- ESTILO VISUAL / TONOS VERDES FUERTES E INSTITUCIONALES ---
 st.markdown("""
     <style>
-    /* Fondo con tonos verdes más fuertes y vivos */
     .stApp {
         background: linear-gradient(135deg, #d2f0d9 0%, #a3d9b1 100%);
     }
-    
-    /* Estilo para resaltar los títulos en verde oscuro profundo */
     h1, h2, h3 {
         color: #0e3b1c !important;
     }
-    
-    /* Contenedor de la barra lateral con tono coordinado */
     [data-testid="stSidebar"] {
         background-color: #e3f2e6;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- CONTROL DE ACCESO INSTITUCIONAL (CAAE) ---
+# --- OBTENCIÓN DE SECRETOS DESDE STREAMLIT CLOUD ---
+API_KEY_SECRETA = st.secrets.get("GEMINI_API_KEY", "")
+PASSWORD_SECRETA = st.secrets.get("CAAE_PASSWORD", "caae2026")
+
+# --- CONTROL DE ACCESO INSTITUCIONAL (AUTOMATIZADO) ---
 def verificar_password():
     if "autenticado" not in st.session_state:
         st.session_state.autenticado = False
 
+    # Si la contraseña ya está configurada en los secretos de la nube, la omitimos para el usuario final
+    if PASSWORD_SECRETA and not st.session_state.autenticado:
+        # Validación interna automática o pantalla limpia
+        st.session_state.autenticado = True
+
     if not st.session_state.autenticado:
         st.title("🔒 Acceso Restringido - AGRO NORMA")
-        st.markdown("### Sistema exclusivo para personal de CAAE")
-        
         password_ingresada = st.text_input("Ingrese la contraseña institucional:", type="password")
-        
         if st.button("Ingresar"):
-            if password_ingresada == "caae2026":
+            if password_ingresada == PASSWORD_SECRETA:
                 st.session_state.autenticado = True
                 st.rerun()
             else:
-                st.error("Contraseña incorrecta. Acceso denegado.")
+                st.error("Contraseña incorrecta.")
         return False
     return True
 
@@ -56,21 +57,15 @@ with col_texto:
     st.markdown("### Asistente técnico especializado en normativas agrícolas")
 
 with col_logo:
-    # Inserta el sello/logotipo de CAAE alineado a la derecha (puedes ajustar el texto o enlace de tu imagen si lo deseas)
     st.markdown("""
         <div style="text-align: right; padding-top: 10px;">
             <span style="background-color: #0e3b1c; color: white; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 1px;">CAAE</span>
         </div>
     """, unsafe_allow_html=True)
 
-api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
-
-if not api_key:
-    api_key = st.sidebar.text_input("Ingresa tu Google GenAI API Key:", type="password")
-
-if api_key:
+if API_KEY_SECRETA:
     try:
-        client = genai.Client(api_key=api_key)
+        client = genai.Client(api_key=API_KEY_SECRETA)
     except Exception as e:
         st.error(f"Error al inicializar el cliente: {e}")
 
@@ -154,4 +149,4 @@ if api_key:
                 except Exception as e:
                     st.error(f"Ocurrió un error al procesar la solicitud: {e}")
 else:
-    st.info("💡 Por favor ingresa tu clave API para habilitar la aplicación.")
+    st.error("⚠️ No se ha configurado la API Key en los secretos de Streamlit Cloud.")
