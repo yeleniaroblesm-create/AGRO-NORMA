@@ -5,22 +5,22 @@ from google.genai import types
 
 st.set_page_config(page_title="AGRO NORMA - CAAE", page_icon="🌾", layout="centered")
 
-# --- ESTILO VISUAL / TONOS INSTITUCIONALES CAAE ---
+# --- ESTILO VISUAL / TONOS VERDES FUERTES E INSTITUCIONALES ---
 st.markdown("""
     <style>
-    /* Fondo con degradado en tonos verdes institucionales suaves */
+    /* Fondo con tonos verdes más fuertes y vivos */
     .stApp {
-        background: linear-gradient(135deg, #eef5f0 0%, #d8ebd9 100%);
+        background: linear-gradient(135deg, #d2f0d9 0%, #a3d9b1 100%);
     }
     
-    /* Estilo personalizado para resaltar los títulos */
+    /* Estilo para resaltar los títulos en verde oscuro profundo */
     h1, h2, h3 {
-        color: #1b4d2e !important;
+        color: #0e3b1c !important;
     }
     
     /* Contenedor de la barra lateral con tono coordinado */
     [data-testid="stSidebar"] {
-        background-color: #f4f8f4;
+        background-color: #e3f2e6;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -31,7 +31,7 @@ def verificar_password():
         st.session_state.autenticado = False
 
     if not st.session_state.autenticado:
-        st.title("🔒 Acceso Restringido - AGRO NORMA (CAAE)")
+        st.title("🔒 Acceso Restringido - AGRO NORMA")
         st.markdown("### Sistema exclusivo para personal de CAAE")
         
         password_ingresada = st.text_input("Ingrese la contraseña institucional:", type="password")
@@ -48,9 +48,20 @@ def verificar_password():
 if not verificar_password():
     st.stop()
 
-# --- APLICACIÓN PRINCIPAL ---
-st.title("🌾 AGRO NORMA - CAAE")
-st.markdown("### Asistente técnico especializado en normativas agrícolas")
+# --- APLICACIÓN PRINCIPAL CON LOGOTIPO A LA DERECHA ---
+col_texto, col_logo = st.columns([3, 1])
+
+with col_texto:
+    st.title("🌾 AGRO NORMA")
+    st.markdown("### Asistente técnico especializado en normativas agrícolas")
+
+with col_logo:
+    # Inserta el sello/logotipo de CAAE alineado a la derecha (puedes ajustar el texto o enlace de tu imagen si lo deseas)
+    st.markdown("""
+        <div style="text-align: right; padding-top: 10px;">
+            <span style="background-color: #0e3b1c; color: white; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 1px;">CAAE</span>
+        </div>
+    """, unsafe_allow_html=True)
 
 api_key = st.secrets.get("GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 
@@ -100,7 +111,7 @@ if api_key:
                     5. Pregunta: ¿En CoC la empresa debe mantener registros precisos de compra y ventas?
                        Respuesta: Si. Es una obligación mayor.
                     
-                    6. Pregunta: ¿In IFA GFS V6 el operador debe tener disponible los registros actualizados de todos los tratamientos químicos aplicados en el material de propagación propio?
+                    6. Pregunta: ¿En IFA GFS V6 el operador debe tener disponible los registros actualizados de todos los tratamientos químicos aplicados en el material de propagación propio?
                        Respuesta: Si. Es una obligación mayor.
                     
                     7. Pregunta: ¿Las auditorias de acompañamiento de la finca realizadas por el OC pueden ser consideradas aceptables para mantener la competencia de un auditor del OC de la finca globalgap opción 1?
